@@ -1,48 +1,73 @@
-<table class="table table-hover table-bordered shadow-sm">
-  <thead class="bg-primary text-white">
-    <tr>
-      <th scope="col">Nombre</th>
-      <th scope="col">Empresa</th>
-      <th scope="col">Teléfono</th>
-      <th scope="col">Email</th>
-      <th scope="col">Dirección</th>
-      <th scope="col" class="text-center">Acciones</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr *ngFor="let contact of contacts">
-      <td>{{ contact.name }}</td>
-      <td>{{ contact.company || 'Sin empresa' }}</td>
+<div class="container mt-4">
+  <h2 class="text-center mb-4">Lista de Contactos</h2>
 
-      <!-- Mostrar solo el primer teléfono -->
-      <td>
-        {{ contact.phones[0].phone_number || 'Sin teléfono' }}
-      </td>
+  <div class="form-group mb-3">
+    <input type="text" class="form-control" placeholder="Buscar contactos" [(ngModel)]="searchTerm" (input)="filterContacts()" />
+  </div>
 
-      <!-- Mostrar solo el primer email -->
-      <td>
-        {{ contact.emails[0].email || 'Sin email' }}
-      </td>
+  <table class="table table-hover table-bordered shadow-sm">
+    <thead class="bg-primary text-white">
+      <tr>
+        <th scope="col">Nombre</th>
+        <th scope="col">Empresa</th>
+        <th scope="col">Teléfono</th>
+        <th scope="col">Email</th>
+        <th scope="col">Dirección</th>
+        <th scope="col" class="text-center">Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let contact of filteredContacts">
 
-      <!-- Mostrar solo la primera dirección -->
-      <td>
-      <td>
-        <span *ngIf="contact.addresses.length > 0">
-          {{ contact.addresses[0].street }}, {{ contact.addresses[0].city }}, {{ contact.addresses[0].state }}, {{
-          contact.addresses[0].country }}
-        </span>
-        <span *ngIf="contact.addresses.length === 0">Sin dirección</span>
-      </td>
+        <td>{{ contact.name }}</td>
+        <td>{{ contact.company || 'Sin empresa' }}</td>
 
-      <td class="text-center">
-        <button class="btn btn-sm btn-info me-2" (click)="viewContact(contact.id)">
-          Ver
-        </button>
+        <!-- Mostrar solo el primer teléfono -->
+        <td>{{ contact.phones.length ? contact.phones[0].phone_number : 'Sin teléfono' }}</td>
 
-        <button class="btn btn-sm btn-danger" (click)="deleteContact(contact.id)">
-          Eliminar
-        </button>
-      </td>
-    </tr>
-  </tbody>
-</table>
+        <!-- Mostrar solo el primer email -->
+        <td>{{ contact.emails.length ? contact.emails[0].email : 'Sin email' }}</td>
+
+        <!-- Mostrar solo la primera dirección -->
+        <td>
+          <span *ngIf="contact.addresses.length > 0">
+            {{ contact.addresses[0].street }}, {{ contact.addresses[0].city }}, {{ contact.addresses[0].state }}, {{
+            contact.addresses[0].country }}
+          </span>
+          <span *ngIf="contact.addresses.length === 0">Sin dirección</span>
+        </td>
+
+        <td class="text-center">
+          <button class="btn btn-sm btn-info me-2" (click)="viewContact(contact.id)">
+            Ver
+          </button>
+          <button class="btn btn-sm btn-warning me-2" (click)="editContact(contact.id)">
+            Editar
+          </button>
+          <button class="btn btn-sm btn-danger" (click)="deleteContact(contact.id)">
+            Eliminar
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Paginación -->
+  <nav aria-label="Page navigation" class="mt-3">
+    <ul class="pagination justify-content-center">
+      <li class="page-item" [class.disabled]="currentPage === 1">
+        <a class="page-link" (click)="changePage(currentPage - 1)" aria-label="Previous">
+          <span aria-hidden="true">&laquo;</span>
+        </a>
+      </li>
+      <li *ngFor="let page of getPages()" class="page-item" [class.active]="page === currentPage">
+        <a class="page-link" (click)="changePage(page)">{{ page }}</a>
+      </li>
+      <li class="page-item" [class.disabled]="currentPage === totalPages()">
+        <a class="page-link" (click)="changePage(currentPage + 1)" aria-label="Next">
+          <span aria-hidden="true">&raquo;</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+</div>
