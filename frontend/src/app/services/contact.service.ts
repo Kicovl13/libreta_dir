@@ -12,11 +12,15 @@ export class ContactService {
   constructor(private http: HttpClient) {}
 
   // Método para obtener contactos con paginación
-  getContacts(page: number = 1, limit: number = 10): Observable<{ data: Contact[], total: number }> {
-    const params = new HttpParams()
+  getContacts(page: number = 1, limit: number = 1000, searchTerm: string = ''): Observable<{ data: Contact[], total: number }> {
+    let params = new HttpParams()
       .set('page', page.toString())
       .set('limit', limit.toString());
-
+  
+    if (searchTerm) {
+      params = params.set('search', searchTerm);
+    }
+  
     return this.http.get<{ data: Contact[], total: number }>(this.apiUrl, { params });
   }
 
@@ -37,7 +41,17 @@ export class ContactService {
 
 
   // Método para eliminar un contacto
-  deleteContact(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
-  }
+
+deleteContact(id: number): Observable<void> {
+  return this.http.delete<void>(`${this.apiUrl}/${id}`);
 }
+// Método para realizar la búsqueda de contactos
+searchContacts(term: string): Observable<any> {
+  const url = `${this.apiUrl}/search?search=${term}`;
+  return this.http.get<any>(url);
+}
+
+
+}
+
+

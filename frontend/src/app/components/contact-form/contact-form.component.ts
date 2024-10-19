@@ -38,25 +38,25 @@ export class ContactFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get('id');
-    console.log(id);
+    const id = this.route.snapshot.paramMap.get('id');  // Obtener el ID de la URL
     if (id) {
-      // Si existe un ID en la URL, estamos en modo edición
       this.isEditMode = true;
-      this.contactService.getContact(Number(id)).subscribe(
+      this.contactId = Number(id);
+      this.contactService.getContact(this.contactId).subscribe(
         (contact) => {
           this.contact = contact;
-          this.contactForm.patchValue(this.contact);
-          this.populateArrays(this.contact);  // Cargar teléfonos, emails y direcciones si los hay
+          this.contactForm.patchValue(contact);
+          this.populateArrays(contact);  // Cargar los arrays de teléfonos, emails y direcciones
         },
         (error) => console.error('Error al cargar el contacto', error)
       );
-    } else {
+    }else {
       // Si no hay ID en la URL, estamos en modo creación
       this.isEditMode = false;
       this.contactForm.reset();  // Resetea el formulario para crear un nuevo contacto
     }
   }
+
   // Método para obtener el FormArray de teléfonos
   get phones(): FormArray {
     return this.contactForm.get('phones') as FormArray;
@@ -147,8 +147,6 @@ export class ContactFormComponent implements OnInit {
           (error) => console.error('Error al actualizar el contacto', error)
         );
       } else {
-        console.log(this.contactForm.value);
-
         // Si es un contacto nuevo, crea el contacto
         this.contactService.createContact(this.contactForm.value).subscribe(
           (newContact) => {

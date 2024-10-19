@@ -11,21 +11,36 @@ class ContactController extends Controller
 {
 
   
-    /**
-     * Display a listing of the resource.
-     */
-    public function index(Request $request)
-    {
-        // Obtener el número de registros por página
-        $limit = $request->input('limit', 10);
-
-        // Obtener los contactos con paginación
-        $contacts = Contact::with(['phones', 'emails', 'addresses'])->paginate($limit);
-
-        // Retornar en formato JSON
-        return response()->json($contacts);
+public function index(Request $request)
+{
+    $query = Contact::query();
+    
+    // Filtrar por búsqueda si es necesario
+    if ($request->has('search')) {
+        $search = $request->input('search');
+        $query->where(function ($query) use ($search) {
+            $query->where('name', 'like', "%{$search}%")
+                  ->orWhere('company', 'like', "%{$search}%")
+                  ->orWhereHas('phones', function($q) use ($search) {
+                      $q->where('phone_number', 'like', "%{$search}%");
+                  })
+                  ->orWhereHas('emails', function($q) use ($search) {
+                      $q->where('email', 'like', "%{$search}%");
+                  })
+                  ->orWhereHas('addresses', function($q) use ($search) {
+                      $q->where('street', 'like', "%{$search}%")
+                        ->orWhere('city', 'like', "%{$search}%")
+                        ->orWhere('state', 'like', "%{$search}%")
+                        ->orWhere('country', 'like', "%{$search}%");
+                  });
+        });
     }
     
+    // Devuelve datos paginados
+    $contacts = $query->with(['phones', 'emails', 'addresses'])->paginate(10);
+    return response()->json($contacts);
+}
+
 
     /**
      * Store a newly created resource in storage.
@@ -132,5 +147,53 @@ class ContactController extends Controller
     
         return response()->json($contact);
     }
+
+public function destroy($id)
+{
+    // Encontrar el contacto por su ID
+    $contact = Contact::findOrFail($id);
+
+    // Eliminar las relaciones de teléfonos, correos electrónicos y direcciones
+    $contact->phones()->delete();  // Elimina todos los teléfonos asociados al contacto
+    $contact->emails()->delete();  // Elimina todos los emails asociados al contacto
+    $contact->addresses()->delete();  // Elimina todas las direcciones asociadas al contacto
+
+    // Eliminar el contacto
+    $contact->delete();
+
+    // Devolver una respuesta de éxito
+    return response()->json(['message' => 'Contacto y todos los datos relacionados eliminados correctamente.']);
+}
+
+
+public function search(Request $request)
+{
+    $search = $request->query('search');
+
+    // Usar `with` para evitar consultas N+1 y cargar solo lo necesario
+    $contacts = Contact::with(['phones', 'emails', 'addresses'])
+        ->where('name', 'like', '%' . $search . '%')
+        ->orWhere('company', 'like', '%' . $search . '%')
+        ->orWhereHas('phones', function($query) use ($search) {
+            $query->where('phone_number', 'like', '%' . $search . '%');
+        })
+        ->orWhereHas('emails', function($query) use ($search) {
+            $query->where('email', 'like', '%' . $search . '%');
+        })
+        ->orWhereHas('addresses', function($query) use ($search) {
+            $query->where('street', 'like', '%' . $search . '%')
+                  ->orWhere('city', 'like', '%' . $search . '%')
+                  ->orWhere('state', 'like', '%' . $search . '%')
+                  ->orWhere('country', 'like', '%' . $search . '%');
+        })
+        ->orWhere('birthday', 'like', '%' . $search . '%')
+        ->orWhere('notes', 'like', '%' . $search . '%')
+        ->orWhere('website', 'like', '%' . $search . '%')
+        ->paginate(10);
+
+    return response()->json($contacts);
+}
+
     
 }
+

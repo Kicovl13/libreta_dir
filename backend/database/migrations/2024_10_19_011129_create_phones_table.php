@@ -16,6 +16,8 @@ return new class extends Migration
             $table->foreignId('contact_id')->constrained()->onDelete('cascade');
             $table->string('phone_number');
             $table->timestamps();
+            $table->index('phone_number');
+
         });
         
     }

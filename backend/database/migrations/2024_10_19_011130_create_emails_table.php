@@ -16,6 +16,8 @@ return new class extends Migration
             $table->foreignId('contact_id')->constrained()->onDelete('cascade');
             $table->string('email');
             $table->timestamps();
+            $table->index('email');
+
         });
         
     }

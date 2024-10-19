@@ -19,7 +19,12 @@ return new class extends Migration
             $table->string('website')->nullable();
             $table->string('company')->nullable();
             $table->timestamps();
+            $table->index('name');
+            $table->index('company');
         });
+   
+       
+        
         
     }
 

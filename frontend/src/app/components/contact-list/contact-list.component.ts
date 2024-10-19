@@ -2,44 +2,26 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ContactService } from '../../services/contact.service';
 import { Contact } from '../../models/contact.model';
-import { CommonModule } from '@angular/common';  // Asegúrate de importar CommonModule
-import { FormsModule } from '@angular/forms';  // Para manejar la paginación
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-contact-list',
   standalone: true,
   templateUrl: './contact-list.component.html',
   styleUrls: ['./contact-list.component.css'],
-  imports: [CommonModule, FormsModule]  // Aquí se importa FormsModule
+  imports: [CommonModule, FormsModule]
 })
 export class ContactListComponent implements OnInit {
   contacts: Contact[] = [];
+  filteredContacts: Contact[] = [];
   totalContacts = 0;
   currentPage = 1;
   limit = 10;
+  searchTerm: string = '';
+  totalPages = 1;
 
   constructor(private contactService: ContactService, private router: Router) {}
-
-  searchTerm: string = '';
-  filteredContacts: Contact[] = [];
-  
-  filterContacts(): void {
-    if (this.searchTerm.trim()) {
-      this.filteredContacts = this.contacts.filter(contact =>
-        contact.name.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        contact.phones.some(phone => phone.phone_number.includes(this.searchTerm)) ||
-        contact.emails.some(email => email.email.includes(this.searchTerm)) ||
-        contact.addresses.some(address =>
-          address.street.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-          address.city.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-          address.state.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-          address.country.toLowerCase().includes(this.searchTerm.toLowerCase())
-        )
-      );
-    } else {
-      this.filteredContacts = this.contacts;  // Muestra todos los contactos si no hay búsqueda
-    }
-  }
 
   ngOnInit(): void {
     this.loadContacts();
@@ -49,12 +31,41 @@ export class ContactListComponent implements OnInit {
     this.contactService.getContacts(page, this.limit).subscribe(
       (response) => {
         this.contacts = response.data;
-        this.filteredContacts = this.contacts;  // Inicializa la lista filtrada con todos los contactos
+        this.filteredContacts = [...this.contacts]; // Copiar contactos para filtrar
         this.totalContacts = response.total;
-        this.currentPage = page;
+        this.totalPages = Math.ceil(this.totalContacts / this.limit);
+        this.currentPage = page; // Actualizar la página actual
       },
       (error) => console.error('Error al cargar los contactos', error)
     );
+  }
+
+  get totalPagesArray(): number[] {
+    const pages = [];
+    const range = 5; // Mostrar solo 5 páginas a la vez
+    const start = Math.max(1, this.currentPage - Math.floor(range / 2));
+    const end = Math.min(this.totalPages, start + range - 1);
+  
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+    return pages;
+  }
+  
+
+  filterContacts(): void {
+    if (this.searchTerm.trim() === '') {
+      this.loadContacts(); // Cargar todos los contactos si no hay búsqueda
+    } else {
+      this.contactService.searchContacts(this.searchTerm).subscribe(
+        (response) => {
+          this.filteredContacts = response.data; // Mostrar contactos filtrados
+          this.totalContacts = response.total;
+          this.totalPages = Math.ceil(this.totalContacts / this.limit);
+        },
+        (error) => console.error('Error al buscar contactos', error)
+      );
+    }
   }
 
   viewContact(id: number): void {
@@ -73,36 +84,8 @@ export class ContactListComponent implements OnInit {
       );
     }
   }
-  getPages(): number[] {
-    const totalPages = this.totalPages();
-    const pages = [];
-    const visiblePages = 5;  // Mostrar solo 5 páginas a la vez
-  
-    let startPage = Math.max(this.currentPage - Math.floor(visiblePages / 2), 1);
-    let endPage = Math.min(startPage + visiblePages - 1, totalPages);
-  
-    if (endPage - startPage < visiblePages - 1) {
-      startPage = Math.max(endPage - visiblePages + 1, 1);
-    }
-  
-    for (let i = startPage; i <= endPage; i++) {
-      pages.push(i);
-    }
-  
-    return pages;
-  }
-  totalPages(): number {
-    return Math.ceil(this.totalContacts / this.limit);
-  }
-  
-  changePage(page: number): void {
-    if (page >= 1 && page <= this.totalPages()) {
-      this.loadContacts(page);
-    }
-  }
 
-
-
+  goToPage(page: number): void {
+    this.loadContacts(page); // Cambiar de página cuando se selecciona una nueva página
+  }
 }
-
-
