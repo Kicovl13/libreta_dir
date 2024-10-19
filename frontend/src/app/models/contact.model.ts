@@ -1,34 +1,42 @@
-export interface Contact {
-    id?: number;
-    name: string;
-    company?: string;
-    birthday?: Date;
-    website?: string;
-    notes?: string;
-    phones: Phone[];
-    emails: Email[];
-    addresses: Address[];
-  }
-  
-  export interface Phone {
-    id?: number;
-    number: string;
-    type: string;
+export interface Phone {
+    id: number;
+    contact_id: number;
+    phone_number: string;
+    created_at: string;
+    updated_at: string;
   }
   
   export interface Email {
-    id?: number;
+    id: number;
+    contact_id: number;
     email: string;
-    type: string;
+    created_at: string;
+    updated_at: string;
   }
   
   export interface Address {
-    id?: number;
+    id: number;
+    contact_id: number;
     street: string;
     city: string;
     state: string;
     country: string;
     postal_code: string;
-    type: string;
+    created_at: string;
+    updated_at: string;
+  }
+  
+  export interface Contact {
+    id: number;
+    name: string;
+    company: string;
+    notes: string;
+    birthday: string;
+    website: string;
+    created_at: string;
+    updated_at: string;
+    phones: Phone[];
+    emails: Email[];
+    addresses: Address[];
   }
   

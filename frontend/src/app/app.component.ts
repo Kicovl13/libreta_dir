@@ -1,13 +1,14 @@
 import { Component } from '@angular/core';
-import { RouterModule } from '@angular/router';  // Importa RouterModule
+import { HttpClientModule } from '@angular/common/http';
+import { RouterOutlet,RouterModule } from '@angular/router';
 
 @Component({
+  standalone: true,
+  imports: [HttpClientModule, RouterOutlet,RouterModule], // Asegúrate de importar HttpClientModule
   selector: 'app-root',
-  standalone: true,  // Indica que este componente es standalone
-  imports: [RouterModule],  // Asegúrate de importar RouterModule aquí
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  title = 'frontend';
+  title = 'contact-list-app';
 }

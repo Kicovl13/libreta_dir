@@ -1,0 +1,34 @@
+<div class="container mt-4">
+    <h2 class="text-center mb-4">{{ contact?.name }}</h2>
+  
+    <div *ngIf="contact">
+      <p><strong>Empresa:</strong> {{ contact.company || 'Sin empresa' }}</p>
+      <p><strong>Notas:</strong> {{ contact.notes || 'Sin notas' }}</p>
+      <p><strong>Cumpleaños:</strong> {{ contact.birthday || 'Sin cumpleaños' }}</p>
+      <p><strong>Website:</strong> <a [href]="contact.website">{{ contact.website }}</a></p>
+  
+      <h4>Teléfonos</h4>
+      <ul>
+        <li *ngFor="let phone of contact.phones">
+          {{ phone.phone_number }}
+        </li>
+      </ul>
+  
+      <h4>Emails</h4>
+      <ul>
+        <li *ngFor="let email of contact.emails">
+          {{ email.email }}
+        </li>
+      </ul>
+  
+      <h4>Direcciones</h4>
+      <ul>
+        <li *ngFor="let address of contact.addresses">
+          {{ address.street }}, {{ address.city }}, {{ address.state }}, {{ address.country }}
+        </li>
+      </ul>
+    </div>
+  
+    <button class="btn btn-primary" routerLink="/contacts">Volver a la lista</button>
+  </div>
+  

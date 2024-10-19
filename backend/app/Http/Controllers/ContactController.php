@@ -9,14 +9,19 @@ use Illuminate\Http\Request;
 
 class ContactController extends Controller
 {
+
+  
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        // Obtener todos los contactos con teléfonos, correos y direcciones
-        $contacts = Contact::with(['phones', 'emails', 'addresses'])->get();
-    
+        // Obtener el número de registros por página
+        $limit = $request->input('limit', 10);
+
+        // Obtener los contactos con paginación
+        $contacts = Contact::with(['phones', 'emails', 'addresses'])->paginate($limit);
+
         // Retornar en formato JSON
         return response()->json($contacts);
     }

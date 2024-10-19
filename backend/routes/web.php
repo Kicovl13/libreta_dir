@@ -8,6 +8,6 @@ Route::get('/', function () {
 });
 
 
-
-
-Route::apiResource('contacts', ContactController::class);
+    // Todas tus rutas que necesitan el manejo de CORS
+    Route::get('/contacts', [ContactController::class, 'index']);
+    Route::get('/contacts/{id}', [ContactController::class, 'show']);
