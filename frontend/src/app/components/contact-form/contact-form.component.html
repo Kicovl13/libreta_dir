@@ -1,0 +1,102 @@
+<div class="container">
+    <h2>{{ isEditMode ? 'Editar Contacto' : 'Agregar Contacto' }}</h2>
+  
+    <form [formGroup]="contactForm" (ngSubmit)="onSubmit()">
+      
+      <!-- Nombre -->
+      <div class="form-group">
+        <label for="name">Nombre</label>
+        <input id="name" formControlName="name" class="form-control" placeholder="Nombre del contacto" />
+        <div class="invalid-feedback" *ngIf="contactForm.get('name')?.invalid && contactForm.get('name')?.touched">
+          El nombre es requerido.
+        </div>
+      </div>
+  
+      <!-- Empresa -->
+      <div class="form-group">
+        <label for="company">Empresa</label>
+        <input id="company" formControlName="company" class="form-control" placeholder="Empresa del contacto" />
+      </div>
+  
+      <!-- Fecha de Cumpleaños -->
+      <div class="form-group">
+        <label for="birthday">Cumpleaños</label>
+        <input id="birthday" formControlName="birthday" type="date" class="form-control" />
+      </div>
+  
+      <!-- Página Web -->
+      <div class="form-group">
+        <label for="website">Sitio Web</label>
+        <input id="website" formControlName="website" class="form-control" placeholder="Página web" />
+      </div>
+  
+      <!-- Notas -->
+      <div class="form-group">
+        <label for="notes">Notas</label>
+        <textarea id="notes" formControlName="notes" class="form-control" rows="3" placeholder="Notas sobre el contacto"></textarea>
+      </div>
+  
+      <!-- Teléfonos -->
+      <div class="form-group">
+        <label>Teléfonos</label>
+        <div *ngFor="let phone of phones.controls; let i = index" class="input-group mb-2">
+          <input formControlName="number" placeholder="Teléfono" class="form-control" />
+          <input formControlName="type" placeholder="Tipo (ej: Casa, Móvil)" class="form-control" />
+          <div class="input-group-append">
+            <button type="button" class="btn btn-danger" (click)="removePhone(i)">Eliminar</button>
+          </div>
+        </div>
+        <button type="button" class="btn btn-primary mt-2" (click)="addPhone()">Agregar Teléfono</button>
+      </div>
+  
+      <!-- Emails -->
+      <div class="form-group">
+        <label>Emails</label>
+        <div *ngFor="let email of emails.controls; let i = index" class="input-group mb-2">
+          <input formControlName="email" placeholder="Correo Electrónico" class="form-control" />
+          <input formControlName="type" placeholder="Tipo (ej: Personal, Trabajo)" class="form-control" />
+          <div class="input-group-append">
+            <button type="button" class="btn btn-danger" (click)="removeEmail(i)">Eliminar</button>
+          </div>
+        </div>
+        <button type="button" class="btn btn-primary mt-2" (click)="addEmail()">Agregar Email</button>
+      </div>
+  
+      <!-- Direcciones -->
+      <div class="form-group">
+        <label>Direcciones</label>
+        <div *ngFor="let address of addresses.controls; let i = index" class="card mb-2 p-2">
+          <div class="form-row">
+            <div class="col">
+              <input formControlName="street" placeholder="Calle" class="form-control" />
+            </div>
+            <div class="col">
+              <input formControlName="city" placeholder="Ciudad" class="form-control" />
+            </div>
+            <div class="col">
+              <input formControlName="state" placeholder="Estado" class="form-control" />
+            </div>
+          </div>
+          <div class="form-row mt-2">
+            <div class="col">
+              <input formControlName="country" placeholder="País" class="form-control" />
+            </div>
+            <div class="col">
+              <input formControlName="postal_code" placeholder="Código Postal" class="form-control" />
+            </div>
+            <div class="col">
+              <input formControlName="type" placeholder="Tipo (ej: Trabajo, Casa)" class="form-control" />
+            </div>
+          </div>
+          <button type="button" class="btn btn-danger mt-2" (click)="removeAddress(i)">Eliminar Dirección</button>
+        </div>
+        <button type="button" class="btn btn-primary mt-2" (click)="addAddress()">Agregar Dirección</button>
+      </div>
+  
+      <!-- Botón de Envío -->
+      <button type="submit" class="btn btn-success mt-3" [disabled]="contactForm.invalid">
+        {{ isEditMode ? 'Actualizar' : 'Guardar' }} Contacto
+      </button>
+    </form>
+  </div>
+  
