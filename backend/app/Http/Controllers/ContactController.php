@@ -37,7 +37,7 @@ class ContactController extends Controller
             'name' => 'required|string|max:255',
             'notes' => 'nullable|string',
             'birthday' => 'nullable|date',
-            'website' => 'nullable|url',
+            'website' => 'nullable',
             'company' => 'nullable|string|max:255',
             'phones' => 'array',
             'phones.*' => 'string|max:15', // Validar los números de teléfono
@@ -93,17 +93,16 @@ class ContactController extends Controller
      */
     public function update(Request $request, $id)
     {
-        // Validación de los datos
-        $validated = $request->validate([
+        $validatedData = $request->validate([
             'name' => 'required|string|max:255',
-            'notes' => 'nullable|string',
+            'company' => 'nullable|string|max:255',
             'birthday' => 'nullable|date',
             'website' => 'nullable|url',
-            'company' => 'nullable|string|max:255',
+            'notes' => 'nullable|string',
             'phones' => 'array',
-            'phones.*' => 'string|max:15',
+            'phones.*.phone_number' => 'required|string|max:15',
             'emails' => 'array',
-            'emails.*' => 'email|max:255',
+            'emails.*.email' => 'required|email|max:255',
             'addresses' => 'array',
             'addresses.*.street' => 'nullable|string|max:255',
             'addresses.*.city' => 'nullable|string|max:255',
@@ -112,42 +111,26 @@ class ContactController extends Controller
             'addresses.*.postal_code' => 'nullable|string|max:10',
         ]);
     
-        // Encontrar el contacto
         $contact = Contact::findOrFail($id);
+        $contact->update($validatedData);
     
-        // Actualizar el contacto
-        $contact->update($validated);
-    
-        // Actualizar relaciones (primero eliminar los existentes y luego agregar los nuevos)
+        // Actualiza los teléfonos, emails y direcciones, si es necesario
         $contact->phones()->delete();
-        foreach ($request->phones as $phoneNumber) {
-            $contact->phones()->create(['phone_number' => $phoneNumber]);
+        foreach ($request->phones as $phoneData) {
+            $contact->phones()->create($phoneData);
         }
     
         $contact->emails()->delete();
-        foreach ($request->emails as $emailAddress) {
-            $contact->emails()->create(['email' => $emailAddress]);
+        foreach ($request->emails as $emailData) {
+            $contact->emails()->create($emailData);
         }
     
         $contact->addresses()->delete();
-        foreach ($request->addresses as $address) {
-            $contact->addresses()->create($address);
+        foreach ($request->addresses as $addressData) {
+            $contact->addresses()->create($addressData);
         }
     
-        return response()->json($contact->load(['phones', 'emails', 'addresses']));
-    }
-    
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy($id)
-    {
-        // Encontrar y eliminar el contacto
-        $contact = Contact::findOrFail($id);
-        $contact->delete();
-    
-        return response()->json(['message' => 'Contact deleted successfully']);
+        return response()->json($contact);
     }
     
 }

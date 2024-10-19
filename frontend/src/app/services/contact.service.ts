@@ -7,7 +7,7 @@ import { Contact } from '../models/contact.model';
   providedIn: 'root',  // Asegúrate de que el servicio esté disponible globalmente
 })
 export class ContactService {
-  private apiUrl = 'http://localhost:8000/contacts';  // Cambia según tu configuración
+  private apiUrl = 'http://localhost:8000/api/contacts';  // Cambia según tu configuración
 
   constructor(private http: HttpClient) {}
 
@@ -25,15 +25,16 @@ export class ContactService {
     return this.http.get<Contact>(`${this.apiUrl}/${id}`);
   }
 
-  // Método para crear un nuevo contacto
-  createContact(contact: Contact): Observable<Contact> {
+   // Crear un nuevo contacto
+   createContact(contact: Contact): Observable<Contact> {
     return this.http.post<Contact>(this.apiUrl, contact);
   }
 
-  // Método para actualizar un contacto existente
+  // Actualizar un contacto existente
   updateContact(id: number, contact: Contact): Observable<Contact> {
     return this.http.put<Contact>(`${this.apiUrl}/${id}`, contact);
   }
+
 
   // Método para eliminar un contacto
   deleteContact(id: number): Observable<void> {

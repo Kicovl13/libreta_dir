@@ -1,36 +1,58 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { CommonModule } from '@angular/common'; // Importa el CommonModule
+import { ActivatedRoute,Router } from '@angular/router';
 import { ContactService } from '../../services/contact.service';
 import { Contact } from '../../models/contact.model';
-import { CommonModule } from '@angular/common'; // Asegúrate de importar CommonModule
 
 @Component({
   selector: 'app-contact-detail',
-  standalone: true,
+  standalone: true,  // El componente es standalone
+  imports: [CommonModule],  // Asegúrate de importar CommonModule
   templateUrl: './contact-detail.component.html',
-  styleUrls: ['./contact-detail.component.css'],
-  imports: [CommonModule]  // Aquí se importa el CommonModule
+  styleUrls: ['./contact-detail.component.css']
 })
 export class ContactDetailComponent implements OnInit {
   contact: Contact | null = null;
 
   constructor(
     private route: ActivatedRoute,
-    private contactService: ContactService
+    private contactService: ContactService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
-      this.loadContact(+id);
+      this.loadContact(parseInt(id, 10));
     }
   }
 
-  // Cargar los detalles completos del contacto
   loadContact(id: number): void {
     this.contactService.getContact(id).subscribe(
-      (contact) => this.contact = contact,
-      (error) => console.error('Error al cargar el contacto', error)
+      (data) => {
+        this.contact = data;
+      },
+      (error) => {
+        console.error('Error al cargar el contacto', error);
+      }
     );
+  }
+
+  goBack(): void {
+    window.history.back();
+  }
+
+  editContact(): void {
+    if (this.contact) {
+      this.router.navigate(['/contacts', this.contact.id, 'edit']); // Redirige a la vista de edición del contacto
+    }
+  }
+  deleteContact(): void {
+    if (confirm('¿Estás seguro de eliminar este contacto?')) {
+      this.contactService.deleteContact(this.contact?.id!).subscribe(
+        () => this.goBack(),
+        (error) => console.error('Error al eliminar el contacto', error)
+      );
+    }
   }
 }

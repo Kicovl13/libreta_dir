@@ -1,34 +1,54 @@
 <div class="container mt-4">
     <h2 class="text-center mb-4">{{ contact?.name }}</h2>
-  
-    <div *ngIf="contact">
-      <p><strong>Empresa:</strong> {{ contact.company || 'Sin empresa' }}</p>
-      <p><strong>Notas:</strong> {{ contact.notes || 'Sin notas' }}</p>
-      <p><strong>Cumpleaños:</strong> {{ contact.birthday || 'Sin cumpleaños' }}</p>
-      <p><strong>Website:</strong> <a [href]="contact.website">{{ contact.website }}</a></p>
-  
-      <h4>Teléfonos</h4>
-      <ul>
-        <li *ngFor="let phone of contact.phones">
-          {{ phone.phone_number }}
-        </li>
-      </ul>
-  
-      <h4>Emails</h4>
-      <ul>
-        <li *ngFor="let email of contact.emails">
-          {{ email.email }}
-        </li>
-      </ul>
-  
-      <h4>Direcciones</h4>
-      <ul>
-        <li *ngFor="let address of contact.addresses">
-          {{ address.street }}, {{ address.city }}, {{ address.state }}, {{ address.country }}
-        </li>
-      </ul>
+
+    <div *ngIf="contact" class="card shadow p-4 mb-4">
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <p><strong>Empresa:</strong> {{ contact.company || 'Sin empresa' }}</p>
+            </div>
+            <div class="col-md-4">
+                <p><strong>Notas:</strong> {{ contact.notes || 'Sin notas' }}</p>
+            </div>
+            <div class="col-md-4">
+                <p><strong>Cumpleaños:</strong> {{ contact.birthday || 'Sin cumpleaños' }}</p>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-12">
+                <p><strong>Sitio web:</strong> 
+                    <a [href]="contact.website" target="_blank" rel="noopener">
+                        {{ contact.website || 'No disponible' }}
+                    </a>
+                </p>
+            </div>
+        </div>
+
+        <h4>Teléfonos</h4>
+        <ul class="list-group">
+            <li class="list-group-item" *ngFor="let phone of contact.phones">
+                {{ phone.phone_number }}
+            </li>
+        </ul>
+
+        <h4>Emails</h4>
+        <ul class="list-group">
+            <li class="list-group-item" *ngFor="let email of contact.emails">
+                {{ email.email }}
+            </li>
+        </ul>
+
+        <h4>Direcciones</h4>
+        <ul class="list-group">
+            <li class="list-group-item" *ngFor="let address of contact.addresses">
+                {{ address.street }}, {{ address.city }}, {{ address.state }}, {{ address.country }}
+            </li>
+        </ul>
+
+        <div class="text-center mt-4">
+            <button class="btn btn-primary me-2" (click)="goBack()">Volver a la lista</button>
+            <button class="btn btn-warning me-2" (click)="editContact()">Editar</button>
+            <button class="btn btn-danger" (click)="deleteContact()">Eliminar</button>
+        </div>
     </div>
-  
-    <button class="btn btn-primary" routerLink="/contacts">Volver a la lista</button>
-  </div>
-  
+</div>

@@ -1,23 +1,30 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormArray } from '@angular/forms';  // Importa ReactiveFormsModule
-import { CommonModule } from '@angular/common';  // Importa CommonModule para directivas como *ngIf y *ngFor
-import { Contact } from '../../models/contact.model';  // Asegúrate de que esta ruta sea correcta
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormArray } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { ContactService } from '../../services/contact.service';  // Asegúrate de importar el servicio correctamente
+import { Contact } from '../../models/contact.model';
+import { ActivatedRoute, Router } from '@angular/router';  // Para manejar rutas
 
 @Component({
   selector: 'app-contact-form',
-  standalone: true,  // Indica que este componente es standalone
-  imports: [ReactiveFormsModule, CommonModule],  // Importa ReactiveFormsModule y CommonModule
+  standalone: true,
+  imports: [ReactiveFormsModule, CommonModule],
   templateUrl: './contact-form.component.html',
   styleUrls: ['./contact-form.component.css']
 })
 export class ContactFormComponent implements OnInit {
-  @Input() contact: Contact | null = null;  // Input para pasar datos de contacto
-  @Output() submitForm = new EventEmitter<Contact>();  // Output para emitir el contacto creado o editado
+  @Input() contact: Contact | null = null;
+  @Output() submitForm = new EventEmitter<Contact>();
   contactForm: FormGroup;
-  isEditMode = false;
+  isEditMode = false;  // Controla si estamos en modo edición
+  contactId: number | null = null;  // Para almacenar el ID del contacto en edición
 
-  constructor(private fb: FormBuilder) {
-    // Inicializa el formulario reactivo
+  constructor(
+    private fb: FormBuilder,
+    private contactService: ContactService,  // Servicio de contactos
+    private route: ActivatedRoute,  // Para obtener el ID de la URL
+    private router: Router  // Para redirigir después de actualizar o crear
+  ) {
     this.contactForm = this.fb.group({
       name: ['', Validators.required],
       company: [''],
@@ -31,13 +38,25 @@ export class ContactFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    if (this.contact) {
+    const id = this.route.snapshot.paramMap.get('id');
+    console.log(id);
+    if (id) {
+      // Si existe un ID en la URL, estamos en modo edición
       this.isEditMode = true;
-      this.contactForm.patchValue(this.contact);
-      this.populateArrays(this.contact);
+      this.contactService.getContact(Number(id)).subscribe(
+        (contact) => {
+          this.contact = contact;
+          this.contactForm.patchValue(this.contact);
+          this.populateArrays(this.contact);  // Cargar teléfonos, emails y direcciones si los hay
+        },
+        (error) => console.error('Error al cargar el contacto', error)
+      );
+    } else {
+      // Si no hay ID en la URL, estamos en modo creación
+      this.isEditMode = false;
+      this.contactForm.reset();  // Resetea el formulario para crear un nuevo contacto
     }
   }
-
   // Método para obtener el FormArray de teléfonos
   get phones(): FormArray {
     return this.contactForm.get('phones') as FormArray;
@@ -56,8 +75,7 @@ export class ContactFormComponent implements OnInit {
   // Agregar un nuevo teléfono
   addPhone(): void {
     this.phones.push(this.fb.group({
-      number: ['', Validators.required],
-      type: ['']
+      phone_number: ['', Validators.required],
     }));
   }
 
@@ -65,7 +83,6 @@ export class ContactFormComponent implements OnInit {
   addEmail(): void {
     this.emails.push(this.fb.group({
       email: ['', [Validators.required, Validators.email]],
-      type: ['']
     }));
   }
 
@@ -77,42 +94,70 @@ export class ContactFormComponent implements OnInit {
       state: [''],
       country: [''],
       postal_code: [''],
-      type: ['']
     }));
+  }
+
+  // Eliminar un teléfono
+  removePhone(index: number): void {
+    this.phones.removeAt(index);
+  }
+
+  // Eliminar un email
+  removeEmail(index: number): void {
+    this.emails.removeAt(index);
+  }
+
+  // Eliminar una dirección
+  removeAddress(index: number): void {
+    this.addresses.removeAt(index);
   }
 
   // Método para rellenar los arrays de teléfonos, emails y direcciones
   private populateArrays(contact: Contact): void {
     if (contact.phones) {
-      contact.phones.forEach(phone => this.phones.push(this.fb.group(phone)));
+      contact.phones.forEach(phone => this.phones.push(this.fb.group({
+        phone_number: [phone.phone_number, Validators.required]
+      })));
     }
     if (contact.emails) {
-      contact.emails.forEach(email => this.emails.push(this.fb.group(email)));
+      contact.emails.forEach(email => this.emails.push(this.fb.group({
+        email: [email.email, Validators.required]
+      })));
     }
     if (contact.addresses) {
-      contact.addresses.forEach(address => this.addresses.push(this.fb.group(address)));
+      contact.addresses.forEach(address => this.addresses.push(this.fb.group({
+        street: [address.street],
+        city: [address.city],
+        state: [address.state],
+        country: [address.country],
+        postal_code: [address.postal_code]
+      })));
     }
   }
 
-  // Método para manejar la eliminación de un teléfono
-  removePhone(index: number): void {
-    this.phones.removeAt(index);
-  }
-
-  // Método para manejar la eliminación de un email
-  removeEmail(index: number): void {
-    this.emails.removeAt(index);
-  }
-
-  // Método para manejar la eliminación de una dirección
-  removeAddress(index: number): void {
-    this.addresses.removeAt(index);
-  }
-
-  // Método para manejar el envío del formulario
   onSubmit(): void {
     if (this.contactForm.valid) {
-      this.submitForm.emit(this.contactForm.value);
+      if (this.isEditMode && this.contactId) {
+        // Si es modo edición, actualiza el contacto
+        this.contactService.updateContact(this.contactId, this.contactForm.value).subscribe(
+          (updatedContact) => {
+            console.log('Contacto actualizado:', updatedContact);
+            this.router.navigate(['/contacts', this.contactId]);  // Redirige a la vista de detalles del contacto actualizado
+          },
+          (error) => console.error('Error al actualizar el contacto', error)
+        );
+      } else {
+        console.log(this.contactForm.value);
+
+        // Si es un contacto nuevo, crea el contacto
+        this.contactService.createContact(this.contactForm.value).subscribe(
+          (newContact) => {
+            console.log('Contacto creado:', newContact);
+            this.router.navigate(['/contacts', newContact.id]);  // Redirige a la vista de detalles del contacto recién creado
+          },
+          (error) => console.error('Error al crear el contacto', error)
+        );
+      }
     }
   }
 }

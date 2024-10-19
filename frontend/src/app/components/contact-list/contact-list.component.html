@@ -1,51 +1,48 @@
 <table class="table table-hover table-bordered shadow-sm">
-    <thead class="bg-primary text-white">
-      <tr>
-        <th scope="col">Nombre</th>
-        <th scope="col">Empresa</th>
-        <th scope="col">Teléfono</th>
-        <th scope="col">Email</th>
-        <th scope="col">Dirección</th>
-        <th scope="col" class="text-center">Acciones</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let contact of contacts">
-        <td>{{ contact.name }}</td>
-        <td>{{ contact.company || 'Sin empresa' }}</td>
-  
-        <!-- Mostrar solo el primer teléfono -->
-        <td>
-          {{ contact.phones[0].phone_number || 'Sin teléfono' }}
-        </td>
-  
-        <!-- Mostrar solo el primer email -->
-        <td>
-            {{ contact.emails[0].email || 'Sin email' }}
-          </td>
-  
-        <!-- Mostrar solo la primera dirección -->
-        <td>
-            <td>
-                <span *ngIf="contact.addresses.length > 0">
-                  {{ contact.addresses[0].street }}, {{ contact.addresses[0].city }}, {{ contact.addresses[0].state }}, {{ contact.addresses[0].country }}
-                </span>
-                <span *ngIf="contact.addresses.length === 0">Sin dirección</span>
-              </td>
-  
-        <td class="text-center">
-            <button class="btn btn-sm btn-info me-2" (click)="viewContact(contact.id)">
-              Ver
-            </button>
-            <!-- Eliminar este botón si no necesitas editar aún -->
-            <!-- <button class="btn btn-sm btn-warning me-2" (click)="editContact(contact.id)">
-              Editar
-            </button> -->
-            <button class="btn btn-sm btn-danger" (click)="deleteContact(contact.id)">
-              Eliminar
-            </button>
-          </td>
-      </tr>
-    </tbody>
-  </table>
-  
+  <thead class="bg-primary text-white">
+    <tr>
+      <th scope="col">Nombre</th>
+      <th scope="col">Empresa</th>
+      <th scope="col">Teléfono</th>
+      <th scope="col">Email</th>
+      <th scope="col">Dirección</th>
+      <th scope="col" class="text-center">Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let contact of contacts">
+      <td>{{ contact.name }}</td>
+      <td>{{ contact.company || 'Sin empresa' }}</td>
+
+      <!-- Mostrar solo el primer teléfono -->
+      <td>
+        {{ contact.phones[0].phone_number || 'Sin teléfono' }}
+      </td>
+
+      <!-- Mostrar solo el primer email -->
+      <td>
+        {{ contact.emails[0].email || 'Sin email' }}
+      </td>
+
+      <!-- Mostrar solo la primera dirección -->
+      <td>
+      <td>
+        <span *ngIf="contact.addresses.length > 0">
+          {{ contact.addresses[0].street }}, {{ contact.addresses[0].city }}, {{ contact.addresses[0].state }}, {{
+          contact.addresses[0].country }}
+        </span>
+        <span *ngIf="contact.addresses.length === 0">Sin dirección</span>
+      </td>
+
+      <td class="text-center">
+        <button class="btn btn-sm btn-info me-2" (click)="viewContact(contact.id)">
+          Ver
+        </button>
+
+        <button class="btn btn-sm btn-danger" (click)="deleteContact(contact.id)">
+          Eliminar
+        </button>
+      </td>
+    </tr>
+  </tbody>
+</table>
