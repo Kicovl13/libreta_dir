@@ -1,6 +1,6 @@
 # Noir & Ember — Premium Restaurant Website
 
-Sitio en **Next.js + Tailwind CSS** listo para desplegarse en **Vercel**.
+Sitio en **Next.js (App Router)** + **Tailwind CSS**, preparado para deploy en **Vercel**.
 
 ## Desarrollo local
 
@@ -16,13 +16,14 @@ npm run build
 npm start
 ```
 
-## Deploy en Vercel
+## Deploy en Vercel (sin 404)
 
 1. Importa este repositorio en Vercel.
-2. Framework detectado: **Next.js**.
-3. Comandos:
+2. En **Root Directory**, usa `/` (raíz del repositorio).
+3. Framework: **Next.js**.
+4. Comandos:
    - Install: `npm install`
    - Build: `npm run build`
-4. Deploy.
+5. Deploy.
 
-La configuración base de Vercel está incluida en `vercel.json`.
+> El proyecto usa rutas en `app/` (`app/page.tsx`), que Vercel detecta automáticamente.

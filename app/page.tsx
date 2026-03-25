@@ -1,5 +1,5 @@
-import { Hero } from '@/components/hero';
-import { SiteHeader } from '@/components/site-header';
+import { Hero } from '../components/hero';
+import { SiteHeader } from '../components/site-header';
 import {
   ExperienceSection,
   GallerySection,
@@ -9,7 +9,7 @@ import {
   SiteFooter,
   StorySection,
   TestimonialsSection
-} from '@/components/sections';
+} from '../components/sections';
 
 export default function HomePage() {
   return (
